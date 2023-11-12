@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 type board [][]string
@@ -16,7 +17,6 @@ func main() {
 	case 2:
 		os.Exit(0)
 	}
-
 }
 
 func play() {
@@ -49,15 +49,28 @@ func (b board) printTable() {
 }
 
 func (b *board) move(p string) {
+	var input string
+	var err error
 	var r, c int
 	fmt.Println("Choose one row:")
-	for _, err := fmt.Scanln(&r); checkMove(err, r); {
-		_, err = fmt.Scanln(&r)
+
+	for f := true; f; {
+		_, err = fmt.Scanln(&input)
+		if err != nil {
+			fmt.Println("An error ocurred")
+		}
+		f, r = checkMove(input)
 	}
+
 	fmt.Println("Now choose one column:")
-	for _, err := fmt.Scanln(&c); checkMove(err, c); {
-		_, err = fmt.Scanln(&c)
+	for f := true; f; {
+		_, err = fmt.Scanln(&input)
+		if err != nil {
+			fmt.Println("An error ocurred")
+		}
+		f, c = checkMove(input)
 	}
+
 	(*b)[r][c] = p
 }
 
@@ -67,9 +80,9 @@ func (b board) checkGame(i int) bool {
 		return false
 	}
 	if ((b[0][0] == b[1][1] && b[1][1] == b[2][2]) || (b[0][2] == b[1][1] && b[1][1] == b[2][0])) && b[1][1] != "_" {
-		if b[1][1] == "X" {
+		if i%2 == 0 {
 			fmt.Println("X Win!")
-		} else if b[1][1] == "O" {
+		} else if i%2 != 0 {
 			fmt.Println("O Win")
 		}
 		return false
@@ -77,11 +90,17 @@ func (b board) checkGame(i int) bool {
 	return true
 }
 
-func checkMove(err error, n int) bool {
-	if err != nil || n > 2 {
-		fmt.Println(err)
-		fmt.Println("The move is invalid. Please chose a number between 0 and 2")
-		return true
+func checkMove(move string) (bool, int) {
+
+	n, err := strconv.Atoi(move)
+	if err != nil {
+		fmt.Println("That's not a number!")
+		return true, 0
 	}
-	return false
+
+	if n > 2 {
+		fmt.Println("The move is invalid. Please chose a number between 0 and 2")
+		return true, 0
+	}
+	return false, n
 }
